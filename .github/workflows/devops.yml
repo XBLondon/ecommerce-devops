@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    
       - name: Checkout Code
         uses: actions/checkout@v3
 
@@ -22,19 +23,23 @@ jobs:
           node-version: 18
 
       - name: Install Dependencies (Auth Service)
-        run: npm install
+        if: always()
+        run: npm ci
         working-directory: ./auth-service
 
       - name: Install Dependencies (Product Service)
-        run: npm install
+        if: always()
+        run: npm ci
         working-directory: ./product-service
 
       - name: Install Dependencies (Order Service)
-        run: npm install
+        if: always()
+        run: npm ci
         working-directory: ./order-service
 
       - name: Install Dependencies (Payment Service)
-        run: npm install
+        if: always()
+        run: npm ci
         working-directory: ./payment-service
 
   test:
