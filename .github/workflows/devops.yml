@@ -24,22 +24,22 @@ jobs:
 
       - name: Install Dependencies (Auth Service)
         if: always()
-        run: npm ci
+        run: npm
         working-directory: ./auth-service
 
       - name: Install Dependencies (Product Service)
         if: always()
-        run: npm ci
+        run: npm
         working-directory: ./product-service
 
       - name: Install Dependencies (Order Service)
         if: always()
-        run: npm ci
+        run: npm
         working-directory: ./order-service
 
       - name: Install Dependencies (Payment Service)
         if: always()
-        run: npm ci
+        run: npm
         working-directory: ./payment-service
 
   test:
