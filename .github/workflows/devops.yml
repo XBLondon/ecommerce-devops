@@ -13,34 +13,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      - name: Debug - List Files
+        run: ls -R
+        working-directory: ${{ github.workspace }}
 
       - name: Set Up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install Dependencies (Auth Service)
-        if: always()
-        run: npm
-        working-directory: ./auth-service
-
-      - name: Install Dependencies (Product Service)
-        if: always()
-        run: npm
-        working-directory: ./product-service
-
-      - name: Install Dependencies (Order Service)
-        if: always()
-        run: npm
-        working-directory: ./order-service
-
-      - name: Install Dependencies (Payment Service)
-        if: always()
-        run: npm
-        working-directory: ./payment-service
+      - name: Install Dependencies
+        run: |
+          if [ -d "auth-service" ]; then cd auth-service && npm ci && cd ..; fi
+          if [ -d "product-service" ]; then cd product-service && npm ci && cd ..; fi
+          if [ -d "order-service" ]; then cd order-service && npm ci && cd ..; fi
+          if [ -d "payment-service" ]; then cd payment-service && npm ci && cd ..; fi
 
   test:
     runs-on: ubuntu-latest
@@ -50,21 +40,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Run Tests (Auth Service)
-        run: npm test
-        working-directory: ./auth-service
-
-      - name: Run Tests (Product Service)
-        run: npm test
-        working-directory: ./product-service
-
-      - name: Run Tests (Order Service)
-        run: npm test
-        working-directory: ./order-service
-
-      - name: Run Tests (Payment Service)
-        run: npm test
-        working-directory: ./payment-service
+      - name: Run Tests
+        run: |
+          if [ -d "auth-service" ]; then cd auth-service && npm test && cd ..; fi
+          if [ -d "product-service" ]; then cd product-service && npm test && cd ..; fi
+          if [ -d "order-service" ]; then cd order-service && npm test && cd ..; fi
+          if [ -d "payment-service" ]; then cd payment-service && npm test && cd ..; fi
 
   docker-build:
     runs-on: ubuntu-latest
@@ -77,33 +58,12 @@ jobs:
       - name: Login to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build and Push Auth Service
+      - name: Build and Push Docker Images
         run: |
-          docker build -t xblondon/auth-service:latest ./auth-service
-          docker tag xblondon/auth-service:latest xblondon/auth-service:${{ github.sha }}
-          docker push xblondon/auth-service:latest
-          docker push xblondon/auth-service:${{ github.sha }}
-
-      - name: Build and Push Product Service
-        run: |
-          docker build -t xblondon/product-service:latest ./product-service
-          docker tag xblondon/product-service:latest xblondon/product-service:${{ github.sha }}
-          docker push xblondon/product-service:latest
-          docker push xblondon/product-service:${{ github.sha }}
-
-      - name: Build and Push Order Service
-        run: |
-          docker build -t xblondon/order-service:latest ./order-service
-          docker tag xblondon/order-service:latest xblondon/order-service:${{ github.sha }}
-          docker push xblondon/order-service:latest
-          docker push xblondon/order-service:${{ github.sha }}
-
-      - name: Build and Push Payment Service
-        run: |
-          docker build -t xblondon/payment-service:latest ./payment-service
-          docker tag xblondon/payment-service:latest xblondon/payment-service:${{ github.sha }}
-          docker push xblondon/payment-service:latest
-          docker push xblondon/payment-service:${{ github.sha }}
+          if [ -d "auth-service" ]; then docker build -t xblondon/auth-service:latest ./auth-service && docker push xblondon/auth-service:latest; fi
+          if [ -d "product-service" ]; then docker build -t xblondon/product-service:latest ./product-service && docker push xblondon/product-service:latest; fi
+          if [ -d "order-service" ]; then docker build -t xblondon/order-service:latest ./order-service && docker push xblondon/order-service:latest; fi
+          if [ -d "payment-service" ]; then docker build -t xblondon/payment-service:latest ./payment-service && docker push xblondon/payment-service:latest; fi
 
   deploy:
     runs-on: ubuntu-latest
